@@ -1,0 +1,6 @@
+#ifndef SMO_MESSAGEPROCESSOR_HPP
+#define SMO_MESSAGEPROCESSOR_HPP
+class MessageProcessor
+{
+};
+#endif //SMO_MESSAGEPROCESSOR_HPP
