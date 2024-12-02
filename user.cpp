@@ -6,13 +6,13 @@ User::User(MessageBuffer& buffer) :
   randEngine(rand()),
   dist(65, 90),
   priorityGen(1, 3),
-  lengthGen(0, 10)
+  lengthGen(0, 10),
+  poisson(100)
   {};
 
 void User::run() {
   while (true) {
     auto req = generateRequest();
-    //std::cout << "aaaa\n";
     sendMessage(req);
   }
 }
@@ -20,7 +20,7 @@ void User::sendMessage(std::shared_ptr< Request > req)
 {
   buffer.putRequest(req);
   std::cout << "USER: put request\n";
-  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  std::this_thread::sleep_for(std::chrono::milliseconds(poisson(randEngine)));
 }
 
 std::string User::generateString(uint8_t length) {
@@ -29,7 +29,6 @@ std::string User::generateString(uint8_t length) {
     uint8_t symb = dist(randEngine);
     str[i] = (char) symb;
   }
-  //std::cout << "STR: " << str << '\n';
   return str;
 }
 std::shared_ptr< Request > User::generateRequest()

@@ -16,12 +16,12 @@ class User
   MessageBuffer& buffer;
   void sendMessage(std::shared_ptr< Request > req);
   std::shared_ptr< Request > generateRequest();
-  //как осуществить генерацию по нужному закону?
   std::random_device rand;
   std::mt19937 randEngine;
   std::uniform_int_distribution<uint16_t> dist;
   std::uniform_int_distribution<uint16_t> priorityGen;
   std::uniform_int_distribution<uint16_t> lengthGen;
+  std::poisson_distribution<uint32_t> poisson;
   std::string generateString(uint8_t length);
 };
 #endif

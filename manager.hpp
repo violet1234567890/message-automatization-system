@@ -4,32 +4,35 @@
 #include "messagebuffer.hpp"
 #include "messageprocessor.hpp"
 
+#define DEVICES 3
+
 template <uint8_t MaxDevices>
 class Manager
 {
  public:
   Manager(MessageBuffer& buffer);
   void run();
-  //void printStatistic(std::ostream& out);
+  void printStatistic(std::ostream& out, Statistic & stat);
   std::thread spawnManager() {
     return std::thread(&Manager::run, this);
   }
+  inline static std::array<bool, MaxDevices> freeDevices;
  private:
   std::shared_ptr<Request> selectRequestFromBuffer();
   std::optional<uint8_t> checkFreeDevice();
-  //void getFreeDevice();
-  std::array<MessageProcessor, MaxDevices> devices {};
+  std::array<MessageProcessor*, MaxDevices> devices {};
   MessageBuffer& buffer;
-  uint8_t nextDeviceToSearch;
+  uint16_t nextDeviceToSearch;
+  uint32_t allRequests {};
 };
-//template< uint8_t MaxDevices >
-//void Manager< MaxDevices >::getFreeDevice()
-//{
-//}
 template< uint8_t MaxDevices >
 Manager< MaxDevices >::Manager(MessageBuffer & buffer) :
   buffer{buffer}
-{}
+{
+  for (uint8_t i = 0; i < MaxDevices; i++) {
+    freeDevices[i] = true;
+  }
+}
 template< uint8_t MaxDevices >
 std::shared_ptr<Request> Manager< MaxDevices >::selectRequestFromBuffer()
 {
@@ -45,7 +48,10 @@ std::optional<uint8_t> Manager< MaxDevices >::checkFreeDevice()
 {
   bool isFound;
   for (uint8_t cnt = 0; cnt < MaxDevices; cnt++) {
-    if (devices[nextDeviceToSearch].isFree) {
+    devMut.lock();
+    bool isfree = freeDevices[nextDeviceToSearch];
+    devMut.unlock();
+    if (isfree) {
       isFound = true;
       break;
     }
@@ -57,25 +63,36 @@ std::optional<uint8_t> Manager< MaxDevices >::checkFreeDevice()
   }
   return isFound ? std::optional(nextDeviceToSearch) : std::nullopt;
 }
-//template< uint8_t MaxDevices >
-//void Manager< MaxDevices >::printStatistic(std::ostream & out)
-//{
-//}
+template< uint8_t MaxDevices >
+void Manager< MaxDevices >::printStatistic(std::ostream & out, Statistic & stat)
+{
+  out << "MANAGER STATISTIC: success: " << stat.successRequests << " failed: " << stat.failedRequests
+      << " average time: " << stat.averageTimePerRequest << '\n';
+}
 template< uint8_t MaxDevices >
 void Manager< MaxDevices >::run()
 {
   while (true)
   {
-    //get statistic
     auto devNum = checkFreeDevice();
     while (devNum == std::nullopt)
     {
       devNum = checkFreeDevice();
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    nextDeviceToSearch++;
-    auto device = devices[devNum.value()];
-    std::thread deviceThread(device.spawnDevice(selectRequestFromBuffer()));
-    deviceThread.join();
+    if (nextDeviceToSearch == MaxDevices - 1) {
+      nextDeviceToSearch = 0;
+    } else {
+      nextDeviceToSearch++;
+    }
+    allRequests++;
+    auto* device = devices[devNum.value()];
+    std::thread deviceThread(device->spawnDevice(selectRequestFromBuffer(), devNum.value()));
+    deviceThread.detach();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (allRequests % 20 == 0) {
+      printStatistic(std::cout, MessageProcessor::getStatistic());
+    }
   }
 }
 #endif

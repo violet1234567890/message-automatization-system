@@ -7,7 +7,7 @@ int main()
 {
   MessageBuffer buf;
   User user(buf);
-  Manager<5> man(buf);
+  Manager<DEVICES> man(buf);
   std::thread userThread(user.spawnUser());
   std::thread manThread(man.spawnManager());
   userThread.join();

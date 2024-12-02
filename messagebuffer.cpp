@@ -35,10 +35,12 @@ std::shared_ptr< Request > MessageBuffer::getRequest()
     return {nullptr};
   }
 }
-bool MessageBuffer::putRequest(std::shared_ptr< Request > req) //return declined request?
+bool MessageBuffer::putRequest(std::shared_ptr< Request > req)
 {
-  //std::cout << req->messageData << '\n';
-
+  if ((declinedRequests + successfulRequests) % 20 == 0) {
+    std::cout << "BUFFER STATISTIC: successful requests: " << successfulRequests
+      << " declined requests: " << declinedRequests << '\n';
+  }
   if (takenPlaces < bufferCapacity) {
     bufferMutex.lock();
     for (uint32_t i = 0; i < bufferCapacity; i++) {
@@ -46,8 +48,6 @@ bool MessageBuffer::putRequest(std::shared_ptr< Request > req) //return declined
         buffer[i] = req;
         takenPlaces++;
         bufferMutex.unlock();
-        //std::cout << sizeof(Request) << '\n';
-        //std::cout << i << '\n';
         return true;
       }
     }
