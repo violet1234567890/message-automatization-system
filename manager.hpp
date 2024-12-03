@@ -1,10 +1,11 @@
 #ifndef SMO_MANAGER_HPP
 #define SMO_MANAGER_HPP
 #include <thread>
+#include <fstream>
 #include "messagebuffer.hpp"
 #include "messageprocessor.hpp"
 
-#define DEVICES 3
+#define DEVICES 1
 
 template <uint8_t MaxDevices>
 class Manager
@@ -40,7 +41,7 @@ std::shared_ptr<Request> Manager< MaxDevices >::selectRequestFromBuffer()
   while (req == nullptr) {
     req = buffer.getRequest();
   }
-  std::cout << "MANAGER: get request\n";
+  std::cout << "MANAGER: get request with id: " << req->id << "\n";
   return req;
 }
 template< uint8_t MaxDevices >
@@ -72,6 +73,8 @@ void Manager< MaxDevices >::printStatistic(std::ostream & out, Statistic & stat)
 template< uint8_t MaxDevices >
 void Manager< MaxDevices >::run()
 {
+  std::ofstream out;
+  out.open("statistic.txt", std::ofstream::out);
   while (true)
   {
     auto devNum = checkFreeDevice();

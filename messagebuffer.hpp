@@ -6,13 +6,14 @@
 #include <optional>
 #include <memory>
 
-using message_time = decltype(std::chrono::steady_clock::now());
+using message_time = decltype(std::chrono::system_clock::now());
 struct Request {
   std::string messageData;
   uint8_t priority;
   std::string senderUsername;
   std::string receiverUsername;
   message_time time;
+  uint32_t id;
 };
 class MessageBuffer
 {

@@ -56,8 +56,8 @@ bool MessageBuffer::putRequest(std::shared_ptr< Request > req)
     uint32_t decline = chooseRequestToDecline();
     declinedRequests++;
     bufferMutex.lock();
+    std::cout << "BUFFER: decline request with id: " << buffer[decline].value()->id << "\n";
     buffer[decline] = req;
-    std::cout << "BUFFER: decline request\n";
     bufferMutex.unlock();
     return false;
   }
@@ -66,7 +66,7 @@ bool MessageBuffer::putRequest(std::shared_ptr< Request > req)
 uint32_t MessageBuffer::chooseRequestToDecline()
 {
   bufferMutex.lock();
-  message_time minTime = buffer[0].value()->time;
+  message_time minTime = std::chrono::time_point<std::chrono::system_clock>::max();
   uint32_t chosenOne = 0;
   for (uint32_t i = 1; i < bufferCapacity; i++) {
     if (buffer[i].has_value()) {

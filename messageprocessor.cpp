@@ -13,7 +13,7 @@ bool MessageProcessor::processRequest(std::shared_ptr<Request> request, uint8_t 
   devMut.lock();
   Manager<DEVICES>::freeDevices[devNum] = false;
   devMut.unlock();
-  std::cout << "DEVICE: Processing request\n";
+  std::cout << "DEVICE " << devNum << ": Processing request " << request->id << "\n";
   std::this_thread::sleep_for(std::chrono::milliseconds((uint32_t)(std::rand() + 199) % 500));
 
   if (request->messageData[0] == 'A' || request->messageData[0] == 'M') {

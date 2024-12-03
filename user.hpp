@@ -23,5 +23,6 @@ class User
   std::uniform_int_distribution<uint16_t> lengthGen;
   std::poisson_distribution<uint32_t> poisson;
   std::string generateString(uint8_t length);
+  uint32_t idCnt {};
 };
 #endif
