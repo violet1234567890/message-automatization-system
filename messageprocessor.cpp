@@ -14,7 +14,7 @@ bool MessageProcessor::processRequest(std::shared_ptr<Request> request, uint8_t 
   Manager<DEVICES>::freeDevices[devNum] = false;
   devMut.unlock();
   std::cout << "DEVICE " << devNum << ": Processing request " << request->id << "\n";
-  std::this_thread::sleep_for(std::chrono::milliseconds((uint32_t)(std::rand() + 199) % 500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(200 + (uint32_t)(std::rand()) % 500));
 
   if (request->messageData[0] == 'A' || request->messageData[0] == 'M') {
     std::cout << "DEVICE: decline happened\n";

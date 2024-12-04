@@ -8,21 +8,25 @@ class User
 {
  public:
   User(MessageBuffer& buffer);
-  std::thread spawnUser() {
-    return std::thread(&User::run, this);
+  std::thread spawnUser(uint32_t num) {
+    userId = num;
+    std::cout << " user id:" << num << '\n';
+    return std::thread(&User::run, this, num);
   }
  private:
-  void run();
+  void run(uint32_t num);
+  inline static std::mutex printMut;
   MessageBuffer& buffer;
-  void sendMessage(std::shared_ptr< Request > req);
+  void sendMessage(std::shared_ptr< Request > req, uint32_t num);
   std::shared_ptr< Request > generateRequest();
-  std::random_device rand;
+  std::random_device rand{};
   std::mt19937 randEngine;
   std::uniform_int_distribution<uint16_t> dist;
   std::uniform_int_distribution<uint16_t> priorityGen;
   std::uniform_int_distribution<uint16_t> lengthGen;
   std::poisson_distribution<uint32_t> poisson;
   std::string generateString(uint8_t length);
-  uint32_t idCnt {};
+  inline static uint32_t idCnt {};
+  uint32_t userId{};
 };
 #endif

@@ -6,11 +6,18 @@
 int main()
 {
   MessageBuffer buf;
-  User user(buf);
+  std::array<User*, USERS> users;
   Manager<DEVICES> man(buf);
-  std::thread userThread(user.spawnUser());
+  std::array<std::thread, USERS> userThreads;
+  for (int i = 0; i < USERS; i++) {
+    User user(buf);
+    users[i] = &user;
+    userThreads[i] = user.spawnUser(i);
+  }
   std::thread manThread(man.spawnManager());
-  userThread.join();
+  for (int i = 0; i < USERS; i++) {
+    userThreads[i].join();
+  }
   manThread.join();
   return 0;
 }

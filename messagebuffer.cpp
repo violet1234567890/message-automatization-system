@@ -5,20 +5,17 @@ std::shared_ptr< Request > MessageBuffer::getRequest()
   bufferMutex.lock();
   if (takenPlaces) {
     uint8_t maxPriority = 0;
-    message_time maxTime;
+    uint32_t maxId = 0;
     uint32_t chosenOne = 0;
     for (uint32_t i = 0; i < bufferCapacity; i++) {
       if (buffer[i].has_value()) {
-        if (i == 0) {
-          maxTime = buffer[0].value()->time;
-        }
         if (buffer[i].value()->priority > maxPriority) {
           maxPriority = buffer[i].value()->priority;
-          maxTime = buffer[i].value()->time;
+          maxId = buffer[i].value()->id;
           chosenOne = i;
         } else if (buffer[i].value()->priority == maxPriority) {
-          if (buffer[i].value()->time > maxTime) {
-            maxTime = buffer[i].value()->time;
+          if (buffer[i].value()->id >= maxId) {
+            maxId = buffer[i].value()->id;
             chosenOne = i;
           }
         }
@@ -37,6 +34,13 @@ std::shared_ptr< Request > MessageBuffer::getRequest()
 }
 bool MessageBuffer::putRequest(std::shared_ptr< Request > req)
 {
+  std::cout << "Requests in queue: ";
+  for (int i = 0; i < bufferCapacity; i++) {
+    if (buffer[i].has_value()) {
+      std::cout << buffer[i].value()->id << " ";
+    }
+  }
+  std::cout << '\n';
   if ((declinedRequests + successfulRequests) % 20 == 0) {
     std::cout << "BUFFER STATISTIC: successful requests: " << successfulRequests
       << " declined requests: " << declinedRequests << '\n';
@@ -66,12 +70,12 @@ bool MessageBuffer::putRequest(std::shared_ptr< Request > req)
 uint32_t MessageBuffer::chooseRequestToDecline()
 {
   bufferMutex.lock();
-  message_time minTime = std::chrono::time_point<std::chrono::system_clock>::max();
+  uint32_t minId = std::numeric_limits<uint32_t>::max();
   uint32_t chosenOne = 0;
-  for (uint32_t i = 1; i < bufferCapacity; i++) {
+  for (uint32_t i = 0; i < bufferCapacity; i++) {
     if (buffer[i].has_value()) {
-      if (buffer[i].value()->time < minTime) {
-        minTime = buffer[i].value()->time;
+      if (buffer[i].value()->id < minId) {
+        minId = buffer[i].value()->id;
         chosenOne = i;
       }
     }

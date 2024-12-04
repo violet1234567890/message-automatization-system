@@ -5,7 +5,8 @@
 #include "messagebuffer.hpp"
 #include "messageprocessor.hpp"
 
-#define DEVICES 1
+#define DEVICES 2
+#define USERS 1
 
 template <uint8_t MaxDevices>
 class Manager
@@ -73,8 +74,6 @@ void Manager< MaxDevices >::printStatistic(std::ostream & out, Statistic & stat)
 template< uint8_t MaxDevices >
 void Manager< MaxDevices >::run()
 {
-  std::ofstream out;
-  out.open("statistic.txt", std::ofstream::out);
   while (true)
   {
     auto devNum = checkFreeDevice();

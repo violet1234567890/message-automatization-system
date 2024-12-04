@@ -7,19 +7,21 @@ User::User(MessageBuffer& buffer) :
   dist(65, 90),
   priorityGen(1, 3),
   lengthGen(0, 10),
-  poisson(85)
+  poisson(150)
   {};
 
-void User::run() {
+void User::run(uint32_t num) {
   while (true) {
     auto req = generateRequest();
-    sendMessage(req);
+    sendMessage(req, num);
   }
 }
-void User::sendMessage(std::shared_ptr< Request > req)
+void User::sendMessage(std::shared_ptr< Request > req, uint32_t num)
 {
   buffer.putRequest(req);
-  std::cout << "USER: put request with id: " << req->id << "\n";
+  printMut.lock();
+  std::cout << "USER " << num << ": put request with id: " << req->id << "\n";
+  printMut.unlock();
   std::this_thread::sleep_for(std::chrono::milliseconds(poisson(randEngine)));
 }
 
@@ -42,7 +44,9 @@ std::shared_ptr< Request > User::generateRequest()
   req->senderUsername = generateString(senderLength);
   req->priority = priorityGen(randEngine);
   req->time = std::chrono::system_clock::now();
+  printMut.lock();
   req->id = idCnt;
   idCnt++;
+  printMut.unlock();
   return req;
 }
