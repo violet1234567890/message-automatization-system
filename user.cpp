@@ -22,13 +22,13 @@ void User::sendMessage(std::shared_ptr< Request > req, uint32_t num)
   if (!buffer.putRequest(req)) {
     declinedRequests++;
     statMut.lock();
-    statisticByUser[num].allRequests = declinedRequests + successfulRequests;
-    statisticByUser[num].failedRequests = declinedRequests;
+    statisticByUser[num].allRequests++;
+    statisticByUser[num].failedRequests++;
     statMut.unlock();
   } else {
     statMut.lock();
-    statisticByUser[num].allRequests = declinedRequests + successfulRequests;
-    statisticByUser[num].successfulRequests = successfulRequests;
+    statisticByUser[num].allRequests++;
+    statisticByUser[num].successfulRequests++;
     successfulRequests++;
     statMut.unlock();
   }

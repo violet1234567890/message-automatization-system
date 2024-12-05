@@ -12,10 +12,6 @@ Statistic & MessageProcessor::getStatistic() {
 std::mutex devMut;
 bool MessageProcessor::processRequest(std::shared_ptr<Request> request, uint8_t devNum) {
   auto start = std::chrono::steady_clock::now();
-  statMut.lock();
-  statisticByUser[request->source].durationsWait.emplace_back(
-    std::chrono::duration_cast<std::chrono::milliseconds>(start - request->time).count());
-  statMut.unlock();
 
   devMut.lock();
   Manager<DEVICES>::freeDevices[devNum] = false;
@@ -31,6 +27,8 @@ bool MessageProcessor::processRequest(std::shared_ptr<Request> request, uint8_t 
   }
   auto end = std::chrono::steady_clock::now();
   statMut.lock();
+  statisticByUser[request->source].durationsWait.emplace_back(
+    std::chrono::duration_cast<std::chrono::milliseconds>(start - request->time).count());
   statisticByUser[request->source].durationsProcess.emplace_back(
     std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
   statMut.unlock();
