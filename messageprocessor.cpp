@@ -5,6 +5,8 @@
 #include "manager.hpp"
 #include "messagebuffer.hpp"
 
+std::map<uint32_t, uint64_t> statDevice;
+std::mutex devStatMut;
 
 Statistic & MessageProcessor::getStatistic() {
   return statistic;
@@ -27,6 +29,20 @@ bool MessageProcessor::processRequest(std::shared_ptr<Request> request, uint8_t 
   }
   auto end = std::chrono::steady_clock::now();
   statMut.lock();
+
+  statDevice[devNum] += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  allTime += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  if (request->id % 10 == 0) {
+    std::ofstream out;
+    out.open("devices.txt");
+    for (int i = 0; i < DEVICES; i++)
+    {
+      out << "DEVICE " << i << ": " << (double)statDevice[i] / allTime << '\n';
+    }
+    out.close();
+  }
+
+
   statisticByUser[request->source].durationsWait.emplace_back(
     std::chrono::duration_cast<std::chrono::milliseconds>(start - request->time).count());
   statisticByUser[request->source].durationsProcess.emplace_back(

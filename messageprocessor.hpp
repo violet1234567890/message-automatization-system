@@ -25,6 +25,7 @@ class MessageProcessor
   };
  private:
   inline static Statistic statistic;
+  inline static uint64_t allTime{};
   //std::array<Statistic, USERS> userStat;
 };
 #endif

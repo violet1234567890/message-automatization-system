@@ -5,10 +5,12 @@ import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem
 
 file = open("C:/Users/User/CLionProjects/SMO/cmake-build-debug/users.txt")
-#reg =  re.compile(r"^\s*User\s(?P<userNum>):\s*statistic:\s*su
+file1 = open("C:/Users/User/CLionProjects/SMO/cmake-build-debug/devices.txt")
 cnt = 0
+cnt1 = 0
 
 res = {}
+res1 = {}
 
 
 
@@ -22,7 +24,6 @@ class UserTable(QMainWindow):
         self.setGeometry(400, 200, 800, 600)
 
         layout = QVBoxLayout()
-        print("a")
         
         table = QTableWidget(self)  # Create a table
         table.setColumnCount(9)     #Set three columns
@@ -60,6 +61,42 @@ class UserTable(QMainWindow):
 
         self.setCentralWidget(widget)
 
+class DeviceTable(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle(f"Device table")
+        self.setGeometry(400, 200, 800, 600)
+
+        layout = QVBoxLayout()
+        
+        table = QTableWidget(self)  # Create a table
+        table.setColumnCount(2)     #Set three columns
+        table.setRowCount(cnt1)        # and one row
+ 
+        # Set the table headers
+        table.setHorizontalHeaderLabels(["№ прибора", "Коэффициент использования"])
+
+        table.horizontalHeaderItem(0).setToolTip("Column 1 ")
+        table.horizontalHeaderItem(1).setToolTip("Column 2 ")
+        
+        for i, a in res1.items():
+            table.setItem(i, 0, QTableWidgetItem(str(i)))
+            table.setItem(i, 1, QTableWidgetItem(str(a)))
+        
+ 
+        # Do the resize of the columns by content
+        table.resizeColumnsToContents()
+ 
+        layout.addWidget(table)   # Adding the table to the grid
+        
+        widget = QWidget()
+        widget.setLayout(layout)
+
+        self.setCentralWidget(widget)
+
 if __name__ == "__main__":
     
     for line in file:
@@ -85,9 +122,18 @@ if __name__ == "__main__":
         d2 = numpy.std(servicetime)
         
         res[int(elements[1])] = [elements[4], int(elements[8])/int(elements[4]), elements[8], t1, t2, t3, d1, d2]
+
+    for line in file1:
+        print(cnt1)
+        cnt1 += 1
+        data = line.split()
+        res1[int(data[1][0])] = float(data[2])
         
     app = QApplication(sys.argv)
     table = UserTable()
     table.show()
+
+    table1 = DeviceTable()
+    table1.show()
     app.exec()
      
