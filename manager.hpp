@@ -5,8 +5,7 @@
 #include "messagebuffer.hpp"
 #include "messageprocessor.hpp"
 
-#define DEVICES 2
-#define USERS 1
+
 
 template <uint8_t MaxDevices>
 class Manager
@@ -48,7 +47,7 @@ std::shared_ptr<Request> Manager< MaxDevices >::selectRequestFromBuffer()
 template< uint8_t MaxDevices >
 std::optional<uint8_t> Manager< MaxDevices >::checkFreeDevice()
 {
-  bool isFound;
+  bool isFound = false;
   for (uint8_t cnt = 0; cnt < MaxDevices; cnt++) {
     devMut.lock();
     bool isfree = freeDevices[nextDeviceToSearch];
@@ -91,7 +90,7 @@ void Manager< MaxDevices >::run()
     auto* device = devices[devNum.value()];
     std::thread deviceThread(device->spawnDevice(selectRequestFromBuffer(), devNum.value()));
     deviceThread.detach();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     if (allRequests % 20 == 0) {
       printStatistic(std::cout, MessageProcessor::getStatistic());
     }

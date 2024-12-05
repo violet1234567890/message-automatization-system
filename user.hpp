@@ -18,7 +18,7 @@ class User
   inline static std::mutex printMut;
   MessageBuffer& buffer;
   void sendMessage(std::shared_ptr< Request > req, uint32_t num);
-  std::shared_ptr< Request > generateRequest();
+  std::shared_ptr< Request > generateRequest(uint32_t num);
   std::random_device rand{};
   std::mt19937 randEngine;
   std::uniform_int_distribution<uint16_t> dist;
@@ -27,6 +27,8 @@ class User
   std::poisson_distribution<uint32_t> poisson;
   std::string generateString(uint8_t length);
   inline static uint32_t idCnt {};
+  uint32_t declinedRequests{};
+  uint32_t successfulRequests{};
   uint32_t userId{};
 };
 #endif

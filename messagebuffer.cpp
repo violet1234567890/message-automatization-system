@@ -1,5 +1,9 @@
 #include <iostream>
 #include "messagebuffer.hpp"
+
+std::map<uint32_t, UserStatistic> statisticByUser;
+std::mutex statMut;
+
 std::shared_ptr< Request > MessageBuffer::getRequest()
 {
   bufferMutex.lock();

@@ -4,7 +4,7 @@
 #include <vector>
 #include "messagebuffer.hpp"
 struct Statistic {
-  std::vector<std::chrono::milliseconds> dur{};
+  std::vector<std::pair<uint32_t, std::chrono::milliseconds>> dur{};
   uint32_t successRequests {};
   uint32_t failedRequests {};
   double averageTimePerRequest {};
@@ -16,11 +16,15 @@ class MessageProcessor
 {
  public:
   static Statistic& getStatistic();
+  //Statistic& getUserStatistic(uint32_t user) {
+  //  return userStat[user];
+  //}
   bool processRequest(std::shared_ptr<Request> request, uint8_t devNum);
   std::thread spawnDevice(std::shared_ptr<Request> request, uint8_t devNum){
     return std::thread(&MessageProcessor::processRequest, this, request, devNum);
   };
  private:
   inline static Statistic statistic;
+  //std::array<Statistic, USERS> userStat;
 };
 #endif

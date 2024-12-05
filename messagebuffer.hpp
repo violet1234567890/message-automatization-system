@@ -5,8 +5,23 @@
 #include <mutex>
 #include <optional>
 #include <memory>
+#include <map>
+#include <vector>
+#define DEVICES 6
+#define USERS 3
 
-using message_time = decltype(std::chrono::system_clock::now());
+struct UserStatistic {
+  uint32_t allRequests{};
+  uint32_t successfulRequests{};
+  uint32_t failedRequests{};
+  std::vector<double> durationsProcess{};
+  std::vector<double> durationsWait{};
+};
+
+extern std::map<uint32_t, UserStatistic> statisticByUser;
+extern std::mutex statMut;
+
+using message_time = decltype(std::chrono::steady_clock::now());
 struct Request {
   std::string messageData;
   uint8_t priority;
@@ -14,6 +29,7 @@ struct Request {
   std::string receiverUsername;
   message_time time;
   uint32_t id;
+  uint32_t source;
 };
 class MessageBuffer
 {
