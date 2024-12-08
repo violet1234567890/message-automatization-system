@@ -16,16 +16,13 @@ class MessageProcessor
 {
  public:
   static Statistic& getStatistic();
-  //Statistic& getUserStatistic(uint32_t user) {
-  //  return userStat[user];
-  //}
   bool processRequest(std::shared_ptr<Request> request, uint8_t devNum);
   std::thread spawnDevice(std::shared_ptr<Request> request, uint8_t devNum){
+    //allTime = std::chrono::system_clock::now();
     return std::thread(&MessageProcessor::processRequest, this, request, devNum);
   };
  private:
   inline static Statistic statistic;
   inline static uint64_t allTime{};
-  //std::array<Statistic, USERS> userStat;
 };
 #endif

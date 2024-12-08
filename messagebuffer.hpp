@@ -7,8 +7,8 @@
 #include <memory>
 #include <map>
 #include <vector>
-#define DEVICES 6
-#define USERS 3
+#define DEVICES 9
+#define USERS 10
 
 struct UserStatistic {
   uint32_t allRequests{};
@@ -21,7 +21,7 @@ struct UserStatistic {
 extern std::map<uint32_t, UserStatistic> statisticByUser;
 extern std::mutex statMut;
 
-using message_time = decltype(std::chrono::steady_clock::now());
+using message_time = decltype(std::chrono::system_clock::now());
 struct Request {
   std::string messageData;
   uint8_t priority;
@@ -39,7 +39,7 @@ class MessageBuffer
  private:
   uint32_t chooseRequestToDecline();
   std::deque<std::optional<std::shared_ptr< Request >>> buffer;
-  uint32_t bufferCapacity{20};
+  uint32_t bufferCapacity{2};
   std::mutex bufferMutex;
   uint32_t takenPlaces {};
   uint32_t successfulRequests {};

@@ -8,7 +8,7 @@ User::User(MessageBuffer& buffer) :
   dist(65, 90),
   priorityGen(1, 3),
   lengthGen(0, 10),
-  poisson(150)
+  poisson(200)
   {};
 
 void User::run(uint32_t num) {
@@ -79,7 +79,7 @@ std::shared_ptr< Request > User::generateRequest(uint32_t num)
   req->receiverUsername = generateString(receiverLength);
   req->senderUsername = generateString(senderLength);
   req->priority = priorityGen(randEngine);
-  req->time = std::chrono::steady_clock::now();
+  req->time = std::chrono::system_clock::now();
   printMut.lock();
   req->id = idCnt;
   req->source = num;

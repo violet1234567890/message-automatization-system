@@ -124,10 +124,9 @@ if __name__ == "__main__":
         res[int(elements[1])] = [elements[4], int(elements[8])/int(elements[4]), elements[8], t1, t2, t3, d1, d2]
 
     for line in file1:
-        print(cnt1)
         cnt1 += 1
         data = line.split()
-        res1[int(data[1][0])] = float(data[2])
+        res1[int(data[1][0:-1])] = 1 - float(data[2])
         
     app = QApplication(sys.argv)
     table = UserTable()

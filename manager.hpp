@@ -90,7 +90,7 @@ void Manager< MaxDevices >::run()
     auto* device = devices[devNum.value()];
     std::thread deviceThread(device->spawnDevice(selectRequestFromBuffer(), devNum.value()));
     deviceThread.detach();
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     if (allRequests % 20 == 0) {
       printStatistic(std::cout, MessageProcessor::getStatistic());
     }

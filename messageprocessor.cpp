@@ -13,13 +13,14 @@ Statistic & MessageProcessor::getStatistic() {
 }
 std::mutex devMut;
 bool MessageProcessor::processRequest(std::shared_ptr<Request> request, uint8_t devNum) {
-  auto start = std::chrono::steady_clock::now();
+  auto start = std::chrono::system_clock::now();
 
   devMut.lock();
   Manager<DEVICES>::freeDevices[devNum] = false;
   devMut.unlock();
   std::cout << "DEVICE " << (int)devNum << ": Processing request " << request->id << "\n";
-  std::this_thread::sleep_for(std::chrono::milliseconds(200 + (uint32_t)(std::rand()) % 500));
+  //std::this_thread::sleep_for(std::chrono::milliseconds(200 + (uint32_t)(std::rand()) % 500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
   if (request->messageData[0] == 'A' || request->messageData[0] == 'M') {
     std::cout << "DEVICE: decline happened\n";
@@ -27,24 +28,27 @@ bool MessageProcessor::processRequest(std::shared_ptr<Request> request, uint8_t 
   } else {
     statistic.successRequests++;
   }
-  auto end = std::chrono::steady_clock::now();
+
   statMut.lock();
 
-  statDevice[devNum] += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-  allTime += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  auto end = std::chrono::system_clock::now();
+  statDevice[devNum] += std::chrono::duration_cast<std::chrono::milliseconds>((end - start)).count();
+
   if (request->id % 10 == 0) {
     std::ofstream out;
     out.open("devices.txt");
     for (int i = 0; i < DEVICES; i++)
     {
-      out << "DEVICE " << i << ": " << (double)statDevice[i] / allTime << '\n';
+      //out << " " << statDevice[i] << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end - allTime).count() << '\n';
+      out << "DEVICE " << i << ": " << (long double)statDevice[i] / allTime << '\n';
     }
     out.close();
   }
 
-
   statisticByUser[request->source].durationsWait.emplace_back(
     std::chrono::duration_cast<std::chrono::milliseconds>(start - request->time).count());
+
+  allTime += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   statisticByUser[request->source].durationsProcess.emplace_back(
     std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
   statMut.unlock();
